@@ -48,13 +48,7 @@ async function initDb(){
     );
   `);
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS reset_codes (
-  username TEXT,
-  token TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS chats (
+    CREATE TABLE IF NOT EXISTS chats (
       id SERIAL PRIMARY KEY,
       username TEXT NOT NULL,
       messages JSONB DEFAULT '[]'::jsonb,
@@ -287,41 +281,6 @@ app.get('/api/transactions/export', authMiddleware, async (req,res)=>{
 app.get('/api/prices', (req,res)=> res.json(currentPrices()));
 
 
-
-
-// Request reset code
-app.post('/api/request-reset-code', async (req,res)=>{
-  const { username, email } = req.body;
-  if(!username || !email) return res.status(400).json({ error:'Missing fields' });
-  try{
-    const u = await pool.query('SELECT * FROM users WHERE username=$1 AND email=$2', [username,email]);
-    if(u.rowCount===0) return res.status(400).json({ error:'User not found' });
-    const token = require('crypto').randomBytes(16).toString('hex');
-    await pool.query('INSERT INTO reset_codes(username,token) VALUES($1,$2)', [username, token]);
-    const link = `http://localhost:3000/reset-code.html?username=${username}&token=${token}`;
-    await transporter.sendMail({
-      from:'noreply@tradingbot.com',
-      to:email,
-      subject:'Reset your withdrawal security code',
-      text:`Click to reset your security code: ${link}`
-    });
-    res.json({ success:true });
-  }catch(e){ console.error('req reset code err', e); res.status(500).json({ error:'server error' }); }
-});
-
-// Reset code endpoint
-app.post('/api/reset-code', async (req,res)=>{
-  const { username, token, newWithdrawCode } = req.body;
-  if(!username || !token || !newWithdrawCode) return res.status(400).json({ error:'Missing fields' });
-  try{
-    const r = await pool.query('SELECT * FROM reset_codes WHERE username=$1 AND token=$2 AND created_at > NOW() - INTERVAL \'15 minutes\'', [username,token]);
-    if(r.rowCount===0) return res.status(400).json({ error:'Invalid or expired token' });
-    const withdrawHash = await bcrypt.hash(newWithdrawCode, 12);
-    await pool.query('UPDATE users SET withdraw_code_hash=$1 WHERE username=$2', [withdrawHash, username]);
-    await pool.query('DELETE FROM reset_codes WHERE username=$1', [username]);
-    res.json({ success:true });
-  }catch(e){ console.error('reset code err', e); res.status(500).json({ error:'server error' }); }
-});
 
 
 // Withdraw request endpoint - requires withdrawCode verification
