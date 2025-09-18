@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Reset Security Code - trading bot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Reset Withdrawal Security Code</h2>
+    <input type="password" id="newCode" placeholder="New security code" required>
+    <input type="password" id="confirmCode" placeholder="Confirm new code" required>
+    <button id="resetBtn">Reset Code</button>
+    <p id="msg"></p>
+  </div>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('username');
+    const token = urlParams.get('token');
+    document.getElementById('resetBtn').onclick = async ()=>{
+      const newCode = document.getElementById('newCode').value;
+      const confirm = document.getElementById('confirmCode').value;
+      if(newCode!==confirm){ document.getElementById('msg').innerText='Codes do not match'; return; }
+      const res = await fetch('/api/reset-code', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ username, token, newWithdrawCode:newCode })
+      });
+      const d = await res.json();
+      document.getElementById('msg').innerText = d.success? 'Code reset successfully' : (d.error||'Error');
+    };
+  </script>
+</body>
+</html>

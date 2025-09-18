@@ -1,5 +1,5 @@
 {
-  "name": "trading-sim-memory-ui",
+  "name": "trading-bot",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
@@ -14,7 +14,12 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "socket.io": "^4.7.5"
+    "pg": "^8.11.3",
+    "socket.io": "^4.7.5",
+    "helmet": "^6.0.1",
+    "express-rate-limit": "^6.8.0",
+    "express-validator": "^7.0.1",
+    "nodemailer": "^6.9.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

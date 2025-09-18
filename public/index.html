@@ -1,6 +1,6 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trading Sim - Login</title><link rel="stylesheet" href="styles.css"></head><body>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>trading bot</title><link rel="stylesheet" href="styles.css"></head><body>
 <div class="wrap">
-  <h1>Trading Sim (Memory)</h1>
+  <h1>trading bot</h1>
   <div id="forms">
     <div id="login-form">
       <h2>Login</h2>
@@ -9,7 +9,6 @@
       <button id="login-btn">Login</button>
       <p>or <a href="#" id="show-register">Register</a></p>
     </div>
-
     <div id="register-form" class="hidden">
       <h2>Register</h2>
       <input id="reg-username" placeholder="username">
@@ -20,5 +19,43 @@
     </div>
   </div>
 </div>
-<script src="app.js"></script>
+<script src="app.js">async function register() {
+  const username = document.getElementById('username').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const withdrawCode = document.getElementById('withdrawCode').value;
+  const res = await fetch('/api/register', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ username, email, password, withdrawCode })
+  });
+  const data = await res.json();
+  alert(data.success ? 'Registered successfully' : data.error);
+}
+
+</script>
+<script>
+function showResetForm(){ document.getElementById('resetForm').style.display='block'; }
+async function requestReset(){
+  const username=document.getElementById('resetUsername').value;
+  const email=document.getElementById('resetEmail').value;
+  const res=await fetch('/api/request-reset-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,email})});
+  const d=await res.json();
+  alert(d.success? 'Check your email for reset link' : (d.error||'Error'));
+}
+async function register() {
+  const username = document.getElementById('username').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const withdrawCode = document.getElementById('withdrawCode').value;
+  const res = await fetch('/api/register', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ username, email, password, withdrawCode })
+  });
+  const data = await res.json();
+  alert(data.success ? 'Registered successfully' : data.error);
+}
+
+</script>
 </body></html>
